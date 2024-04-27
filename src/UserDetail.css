@@ -1,0 +1,26 @@
+.containerS {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Adjust this value as needed */
+  }
+  
+  .user-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust the minimum width and number of columns as needed */
+    gap: 20px;
+    max-width: 1200px; /* Adjust the maximum width as needed */
+    padding: 20px;
+  }
+  
+  .user-profile-card {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .user-profile-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
