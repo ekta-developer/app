@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-
-import { Badge, Button, Form, Label, Modal, Row , ModalBody} from "reactstrap";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useNavigateavigate } from "react-router-dom";
+import { Badge, Button, Form, Label, Modal, Row, ModalBody } from "reactstrap";
 import { FiEdit } from "react-icons/fi";
 import { MdDeleteOutline } from "react-icons/md";
 import Header from "../component/header/Header";
@@ -9,6 +9,7 @@ import Head from "../component/Head/Head";
 import Navbar from "../component/navbar/Navbar";
 import img1 from "../images/login.jpg";
 import { useForm } from "react-hook-form";
+import { getUserListApi } from "../api/Api";
 const container = {
   width: "100%" /* You can adjust the width as needed */,
   margin: " 0 auto" /* Center the container horizontally */,
@@ -21,7 +22,8 @@ const User_list = () => {
   const [rowData, setRowData] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-
+  const [userData, setUserData]= useState([]);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -32,56 +34,46 @@ const User_list = () => {
     reset,
   } = useForm();
   const toggleDeleteModal = () => setDeleteModal(!deleteModal);
-  const getStatusColor = (status) => {
-    if (status === true) {
-      return "success"; // Green color for paid
-    } else if (status === false) {
-      return "danger"; // Red color for unpaid
-    } else {
-      return "warning"; // Orange color for partial paid
-    }
+  const handleEdit = (data) => {
+    navigate("/signup",{state:data});
   };
-
-  const getStatusText = (status) => {
-    if (status === true) {
-      return "Active";
-    } else if (status === false) {
-      return "Inactive";
-    } else {
-      return "---";
-    }
-  };
-
-  const handleEdit = () => {};
 
   const handleDelete = () => {
-    toggleDeleteModal();
-    setIsOpen(false);
-    setDeleteModal(true);
-    setRowData(data);
-    setValue("id", data.id);
-    console.log(data);
-    console.log("delete", data, deleteModal);
+    // toggleDeleteModal();
+    // setIsOpen(false);
+    // setDeleteModal(true);
+    // setRowData(data);
+    // setValue("id", data.id);
+    // console.log(data);
+    // console.log("delete", data, deleteModal);
   };
 
   const deleteRow = () => {
     const bodyData = {
       id: watch("id"),
     };
-    console.log(bodyData,"del");
+    console.log(bodyData, "del");
     setDeleteModal(false);
   };
   const [columns, setColumns] = useState([
     {
-      name: <h4>ID</h4>,
-      selector: (row) => row.id,
-      sortable: true,
-    },
-    {
       name: <h4>Name</h4>,
       selector: (row) => row.name,
+      // selector: (row) => {
+      //   const { firstname, middlename, lastname } = row;
+      //   let fullName = firstname || '';  // Start with firstname or empty string
+    
+      //   if (middlename) {
+      //     fullName += (fullName.length > 0 ? ' ' : '') + middlename;
+      //   }
+      //   if (lastname) {
+      //     fullName += (fullName.length > 0 ? ' ' : '') + lastname;
+      //   }
+    
+      //   return fullName;
+      // },
       sortable: true,
-    },
+    },    
     {
       name: <h4>Gender</h4>,
       selector: (row) => row.gender,
@@ -108,11 +100,6 @@ const User_list = () => {
       sortable: true,
     },
     {
-      name: <h4>Password</h4>,
-      selector: (row) => row.password,
-      sortable: true,
-    },
-    {
       name: <h4>Hobbies</h4>,
       selector: (row) => row.hobbies,
       sortable: true,
@@ -134,23 +121,38 @@ const User_list = () => {
     },
     {
       name: <h4>Profile Picture</h4>,
-      selector: (row) => row.pic,
+      selector: (row) => row.profile,
       sortable: true,
+      // cell: (row) => (
+      //   <div style={{ width: "50rem" }}>
+      //     <img src={`http://localhost:8000/api/img/${row.profile}`} alt="Profile" style={{ width: "100%", height: "auto" }} />
+      //   </div>
+      cell: (row) => (
+        <div style={{ width: "50rem" }}>
+          <img src={img1} alt="Profile" style={{ width: "20px%", height: "20px" }} />
+        </div>
+      ),
     },
     {
       name: <h4>Document</h4>,
       selector: (row) => row.document,
       sortable: true,
+      cell: (row) => <div>
+        <a href={row.document} target="_blank">{row.document}</a>
+      </div>,
     },
     {
       name: <h4>Status</h4>,
       selector: (row) => row.status,
+      sortable: true,
       cell: (row) => (
-        <Badge color={`outline-${getStatusColor(row.status)}`}>
-          {getStatusText(row.status)}
+        // <Badge color={`outline-${row.status === true ? "success" : "danger"}`}>
+        //   <h3>{row.status === true ? "Active" : "Inactive"}</h3>
+        // </Badge>
+        <Badge className={`badge bg-${row.status === true ? "success":"danger" }` }>
+          <h6>{row.status === true ? "Active" : "Inactive"}</h6>
         </Badge>
       ),
-      sortable: true,
     },
     {
       name: <h4>Action</h4>,
@@ -173,62 +175,65 @@ const User_list = () => {
       ),
     },
   ]);
+ 
   const [data, setData] = useState([
     {
-      id:"1",
+      id: "1",
       name: "ekta",
+      middlename:"kapoor",
+      last_name:"Srivastava",
       gender: "female",
       dob: "12/3/2009",
       mobile: "657876545",
       email: "admin@gmail.com",
       username: "xyz",
       password: "123456",
-      hobbies: "painting",
-      state: "up",
+      hobbies: ["Singing"," ,","Dancing"],
+      state:"up",
       district: "lucknow",
       city: "lucknow",
-      pic: (
-        <div>
-          <a href="#" class="avatar">
-            <img
-              src={img1}
-              alt="User Image"
-              style={{ width: "20px", height: "20px" }}
-            />
-          </a>
-        </div>
-      ),
-      document: ".pdf",
+      pic: img1, // Store the image URL instead of JSX element
+      document: "C:/Users/India/Documents/AKSHAT KUMAR",
       status: true,
     },
     {
-      id:"2",
-      name: "ekta",
-      gender: "female",
+      id: "2",
+      name: "Keshav ",
+      middlename:"kumar",
+      last_name:"mohan",
+      gender: "male",
       dob: "12/3/2009",
-      mobile: "657876545",
+      mobile: "9877654554",
       email: "admin@gmail.com",
       username: "xyz",
       password: "123456",
-      hobbies: "painting",
+      hobbies: ["Singing",",","Coding"],
       state: "up",
       district: "lucknow",
       city: "lucknow",
-      pic: (
-        <div>
-          <a href="#" class="avatar">
-            <img
-              src={img1}
-              alt="User Image"
-              style={{ width: "20px", height: "20px" }}
-            />
-          </a>
-        </div>
-      ),
+      pic:img1, // Store the image URL instead of JSX element
       document: ".pdf",
       status: false,
     },
   ]);
+  
+
+
+// useEffect(()=>{
+//   getUserData();
+// },[])
+
+const getUserData=()=>{
+    getUserListApi()
+      .then((res) => {
+        console.log(res);
+        console.log(res.data,"table-data")
+        setUserData(res.data)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <>
@@ -256,10 +261,14 @@ const User_list = () => {
       <Modal isOpen={deleteModal} toggle={toggleDeleteModal}>
         <ModalBody className="modal-body-lg text-center">
           <div className="nk-modal">
-            <icon className={`nk-modal-icon icon-circle icon-circle-xxl ni ni-cross bg-danger`}></icon>
+            <icon
+              className={`nk-modal-icon icon-circle icon-circle-xxl ni ni-cross bg-danger`}
+            ></icon>
             <h4 className="nk-modal-title">{rowData?.id}</h4>
             <div className="nk-modal-text">
-              <p className="lead">Are you sure? You won't be able to revert this!</p>
+              <p className="lead">
+                Are you sure? You won't be able to revert this!
+              </p>
             </div>
             <div className="nk-modal-action mt-5">
               <Button

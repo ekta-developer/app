@@ -9,7 +9,7 @@ function ProfileDropdown({ handleUserListClick, handleLogoutClick }) {
   return (
     <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
       <DropdownToggle caret color="primary">
-        Profile
+        Menu
       </DropdownToggle>
       <DropdownMenu>
         <DropdownItem onClick={handleUserListClick}>User List</DropdownItem>

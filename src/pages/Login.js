@@ -38,7 +38,7 @@ const Login = () => {
   };
 
   const open = () => {
-    navigate('/signup');
+    navigate('/register');
   };
 
   return (

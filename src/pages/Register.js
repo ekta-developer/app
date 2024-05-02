@@ -18,7 +18,6 @@ import {
 import { useForm } from "react-hook-form";
 import Navbar from "../component/navbar/Navbar";
 import { createUserAPI } from "../api/Api";
-import axios from "axios";
 
 // Function to validate date format
 const isValidDate = (dateString) => {
@@ -62,7 +61,7 @@ const formContainer = {
   backgroundColor: "white",
 };
 
-const SignUp = () => {
+const Register = () => {
   const {
     register,
     handleSubmit,
@@ -86,9 +85,9 @@ const SignUp = () => {
   const [cityOptions, setCityOptions] = useState([]);
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedcity, setSelectedCity]= useState('');
+  const [selectedcity, setSelectedCity] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [selectedStatus,setSelectedStatus]= useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedHobbies, setSelectedHobbies] = useState([]);
   const [formDataObject, setFormDataObject] = useState({});
@@ -125,7 +124,7 @@ const SignUp = () => {
   ];
 
   useEffect(() => {
-    // setStateOptions(States);
+    setStateOptions(States);
   }, []);
 
   useEffect(() => {
@@ -349,72 +348,18 @@ const SignUp = () => {
       });
   };
 
-  useEffect(() => {
-    if (currentLocation) {
-      console.log(currentLocation?.state, "kkkkk");
-      setFormDataObject(currentLocation?.state?.data);
-      setValue("name", currentLocation?.state?.name);
-      setValue("middle_name", currentLocation?.state?.middlename);
-      setValue("last_name", currentLocation?.state?.last_name);
-      setDate(currentLocation.state.dob);
-      setValue("mobile", currentLocation?.state?.mobile);
-      setValue("email", currentLocation?.state?.email);
-      setValue("username", currentLocation?.state?.username);
-      setSelectedState({
-        value: currentLocation.state.state, 
-        label: currentLocation.state.state
-      });
-      setSelectedDistrict({
-        value: currentLocation.state.district, 
-        label: currentLocation.state.district
-      });
-      setSelectedCity({
-        value: currentLocation.state.city, 
-        label: currentLocation.state.city
-      });
-      setSelectedStatus({
-        value: currentLocation.state.status === true?"Active":"Inactive", 
-
-        label: currentLocation.state.status === true?"Active":"Inactive"
-      })
-
-      if (
-        currentLocation &&
-        currentLocation.state &&
-        currentLocation.state.gender
-      ) {
-        const genderValue = currentLocation.state.gender; // Assuming gender is either "male" or "female"
-        setGender(genderValue);
-      }
-      if (
-        currentLocation &&
-        currentLocation.state &&
-        currentLocation.state.gender
-      ) {
-        const hobbies = currentLocation.state.hobbies; // Assuming gender is either "male" or "female"
-        setSelectedHobbies(hobbies);
-      }
-
-      setImageUrl(currentLocation.state.pic);
-     
-   
-    }
-  }, [currentLocation, setValue, trigger]);
-
-  
-
   const onError = (errors) => {
     console.log("Errors:", errors);
   };
 
   return (
     <>
-      <Head title={"Update"} />
+      <Head title={"Register"} />
       <Navbar />
       <div className="container" style={container}>
         <Header
-          mainHeading={"Details Updation"}
-          subHeading={"User-List | Edit "}
+          mainHeading={"User Registration"}
+          subHeading={"Task | Register "}
         />
 
         <div className="formContainer">
@@ -431,7 +376,7 @@ const SignUp = () => {
               }}
             >
               {" "}
-              User Updation
+              User Registration Form
             </h2>
             <span style={{ paddingBottom: "20px" }}></span>
             <Row className={`gy-4 mb-1`}>
@@ -572,8 +517,7 @@ const SignUp = () => {
                         <Input
                           className="form-control date-picker"
                           id="date"
-                          // value={watch(`dob`)}
-                          value={date}
+                          value={watch(`dob`)}
                           onChange={handleDateChange}
                         />
                         {error && <span style={style}>{error}</span>}
@@ -902,11 +846,9 @@ const SignUp = () => {
                             id="State"
                             options={StateOptions}
                             {...register("State", { required: true })}
-                            // value={StateOptions.find(
-                            //   (option) => option.value === selectedState
-                            // )}
-                            value={selectedState}
-
+                            value={StateOptions.find(
+                              (option) => option.value === selectedState
+                            )}
                             onChange={handleStateChange}
                           />
                           {errors.State && (
@@ -928,10 +870,9 @@ const SignUp = () => {
                             id="District"
                             options={districtOptions}
                             {...register("District", { required: true })}
-                            // value={districtOptions.find(
-                            //   (option) => option.value === selectedDistrict
-                            // )}
-                            value={selectedDistrict}
+                            value={districtOptions.find(
+                              (option) => option.value === selectedDistrict
+                            )}
                             onChange={handleDistrictChange}
                           />
                           {errors.District && (
@@ -955,8 +896,7 @@ const SignUp = () => {
                             id="City"
                             options={cityOptions}
                             {...register("City", { required: true })}
-                            // value={watch(`City`)}
-                            value={selectedcity}
+                            value={watch(`City`)}
                             onChange={handleCityChange}
                           />
                           {errors.City && (
@@ -981,18 +921,18 @@ const SignUp = () => {
                             onChange={handleImageChange}
                             accept=".jpg, .png, .jpeg"
                           />
-                          {/* {imageUrl && ( */}
-                          <div>
-                            <img
-                              src={imageUrl}
-                              alt="Preview"
-                              style={{ maxWidth: "100%", maxHeight: "200px" }}
-                            />
-                            <Button onClick={removeImage} style={{}}>
-                              <SlClose />
-                            </Button>
-                          </div>
-                          {/* )} */}
+                          {imageUrl && (
+                            <div>
+                              <img
+                                src={imageUrl}
+                                alt="Preview"
+                                style={{ maxWidth: "100%", maxHeight: "200px" }}
+                              />
+                              <Button onClick={removeImage} style={{}}>
+                                <SlClose />
+                              </Button>
+                            </div>
+                          )}
                           {errorMessage && <p>{errorMessage}</p>}
                           {/* {errors.profile && <span style={style}>Profile is required.</span>} */}
                         </div>
@@ -1029,8 +969,7 @@ const SignUp = () => {
                             { label: "Inactive", value: "Inactive" },
                           ]}
                           {...register("status", { required: true })}
-                          // value={watch(`status`)}
-                          value={selectedStatus}
+                          value={watch(`status`)}
                           onChange={handleStatus}
                         />
                         {errors.status && (
@@ -1073,4 +1012,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Register;
