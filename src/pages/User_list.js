@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useNavigateavigate } from "react-router-dom";
+import { Link, useNavigate, useNavigateavigate } from "react-router-dom";
 import { Badge, Button, Form, Label, Modal, Row, ModalBody } from "reactstrap";
 import { FiEdit } from "react-icons/fi";
 import { MdDeleteOutline } from "react-icons/md";
@@ -17,6 +17,7 @@ const container = {
   boxSizing: "border-box",
   marginTop: "10px" /* Include padding in the width calculation */,
 };
+
 const User_list = () => {
   const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const [rowData, setRowData] = useState(null);
@@ -35,17 +36,17 @@ const User_list = () => {
   } = useForm();
   const toggleDeleteModal = () => setDeleteModal(!deleteModal);
   const handleEdit = (data) => {
-    navigate("/signup",{state:data});
+    navigate("/register", { state: JSON.stringify(data) });
   };
 
   const handleDelete = () => {
-    // toggleDeleteModal();
-    // setIsOpen(false);
-    // setDeleteModal(true);
-    // setRowData(data);
-    // setValue("id", data.id);
-    // console.log(data);
-    // console.log("delete", data, deleteModal);
+    toggleDeleteModal();
+    setIsOpen(false);
+    setDeleteModal(true);
+    setRowData(data);
+    setValue("id", data.id);
+    console.log(data);
+    console.log("delete", data, deleteModal);
   };
 
   const deleteRow = () => {
@@ -183,17 +184,17 @@ const User_list = () => {
       middlename:"kapoor",
       last_name:"Srivastava",
       gender: "female",
-      dob: "12/3/2009",
+      dob: "20/03/2002",
       mobile: "657876545",
       email: "admin@gmail.com",
       username: "xyz",
       password: "123456",
-      hobbies: ["Singing"," ,","Dancing"],
+      hobbies: ["Singing","Dancing"],
       state:"up",
       district: "lucknow",
       city: "lucknow",
       pic: img1, // Store the image URL instead of JSX element
-      document: "C:/Users/India/Documents/AKSHAT KUMAR",
+      document:"https://www.hse.ie/eng/about/who/acute-hospitals-division/woman-infants/clinical-guidelines/guideline-developer-information-sheet.pdf",
       status: true,
     },
     {
@@ -202,23 +203,21 @@ const User_list = () => {
       middlename:"kumar",
       last_name:"mohan",
       gender: "male",
-      dob: "12/3/2009",
+      dob: "12/06/1999",
       mobile: "9877654554",
       email: "admin@gmail.com",
       username: "xyz",
       password: "123456",
-      hobbies: ["Singing",",","Coding"],
+      hobbies: ["Reading","Coding"],
       state: "up",
       district: "lucknow",
       city: "lucknow",
       pic:img1, // Store the image URL instead of JSX element
-      document: ".pdf",
+      document:"https://www.hse.ie/eng/about/who/acute-hospitals-division/woman-infants/clinical-guidelines/guideline-developer-information-sheet.pdf",
       status: false,
     },
   ]);
   
-
-
 // useEffect(()=>{
 //   getUserData();
 // },[])

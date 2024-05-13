@@ -1,7 +1,7 @@
 import axios from "axios";
 const BASE_URL = "http://localhost:8000/api/";
 const userToken = localStorage.getItem("accessToken");
-
+const url="http://192.168.23.3/patangg/api/store"
 const token = {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -13,6 +13,10 @@ const token = {
 //user-list
   export const getUserListApi = async (data) => {
     return await axios.get(`${BASE_URL}userList`, data);
+  };
+
+  export const formAPI = async (data) => {
+    return await axios.get(`${url}category`, data);
   };
 
 //   //*create user

@@ -20,33 +20,6 @@ import {
 } from "reactstrap";
 import { useForm } from "react-hook-form";
 import Navbar from "../component/navbar/Navbar";
-import { createUserAPI } from "../api/Api";
-import SignUp from "./Signup";
-import UpdateUser from "../component/UpdateUser";
-
-// Function to validate date format
-const isValidDate = (dateString) => {
-  const regEx = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateString.match(regEx)) return false; // Invalid format
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return false; // Invalid date
-  return true;
-};
-
-// Function to calculate age
-const calculateAge = (dob) => {
-  const dobDate = new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - dobDate.getFullYear();
-  const monthDiff = today.getMonth() - dobDate.getMonth();
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < dobDate.getDate())
-  ) {
-    age--;
-  }
-  return age;
-};
 
 const style = { color: "#e85347", fontSize: "11px", fontStyle: "italic" };
 
@@ -57,19 +30,8 @@ const container = {
   boxSizing: "border-box",
   marginTop: "10px" /* Include padding in the width calculation */,
 };
-const formContainer = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "126vh",
-  marginTop: "20px",
-  backgroundColor: "white",
-};
 
-const Register = () => {
-  const location = useLocation();
-  const stateData = location.state;
-  // const [listdata,setListData] =  useState([]);
+const UpdateUser = ({ data }) => {
   const {
     register,
     handleSubmit,
@@ -81,12 +43,9 @@ const Register = () => {
     formState: { errors },
   } = useForm();
   const [selectedDate, setSelectedDate] = useState(null);
-
   const navigate = useNavigate();
-  const [dob, setDob] = useState("");
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [documentFile, setDocumentFile] = useState(null);
   const [StateOptions, setStateOptions] = useState([]);
   const [districtOptions, setDistrictOptions] = useState([]);
@@ -100,12 +59,40 @@ const Register = () => {
   const [selectedHobbies, setSelectedHobbies] = useState([]);
   const [formDataObject, setFormDataObject] = useState({});
   const [gender, setGender] = useState("");
-  const [data, setData] = useState([]);
   const [passwordShown, setPasswordShown] = useState(false);
+  const [user, setUser] = useState([]);
   const formClass = classNames({
     "form-validate": true,
     "is-alter": "",
   });
+
+  useEffect(() => {
+    try {
+      const Uuser = JSON.parse(data);
+      console.log(Uuser.name, "=======================");
+      setUser(Uuser);
+    } catch (error) {
+      console.error("Failed to parse user data", error);
+    }
+  }, [data]); // Only re-run the effect if `data` changes
+
+  useEffect(() => {
+    console.log(user, "user Variable"); // This will log after `user` is updated
+    setImageUrl(user.pic);
+    if (user && user.gender) {
+      const genderValue = user.gender; // Assuming gender is either "male" or "female"
+      setGender(genderValue);
+    }
+    if (user && user.hobbies) {
+      const hobbiesValue = user.hobbies; // Assuming hobbies is either "male" or "female"
+      setSelectedHobbies(hobbiesValue);
+    }
+    setDocumentFile(user.document);
+    setSelectedStatus({
+      value: user.status ? true : false,
+      label: user.status ? "Active" : "Inactive",
+    });
+  }, [user]);
 
   // Simulated data for countries, States, and cities
   const States = [
@@ -134,8 +121,7 @@ const Register = () => {
 
   useEffect(() => {
     setStateOptions(States);
-    console.log(location.state,"state");
-  }, [location]);
+  }, []);
 
   useEffect(() => {
     if (selectedState) {
@@ -201,6 +187,7 @@ const Register = () => {
       setError("Future dates are not allowed.");
       setSelectedDate(null); // Optionally reset the date
     } else {
+      // setValue("dob", date);
       setError("");
       setSelectedDate(date);
     }
@@ -255,10 +242,6 @@ const Register = () => {
   // Update the type of input field dynamically based on `passwordShown` state
   const inputType = passwordShown ? "text" : "password";
   const iconClass = passwordShown ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
-
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
@@ -326,70 +309,21 @@ const Register = () => {
     trigger("status");
   };
   const handleLogin = () => {
-    navigate("/");
+    navigate("/user-list");
   };
 
   const onFormSubmit = (data) => {
     console.log("data", data);
-    alert("Registered Success!")
+    alert("Update Success!");
     console.log(gender);
-    const formData = new FormData();
-    formData.append("name", data?.name);
-    formData.append("middle_name", data?.middle_name);
-    formData.append("last_name", data?.last_name);
-    formData.append("dob", dob);
-    formData.append("mobile", data?.mobile);
-    formData.append("email", data?.email);
-    formData.append("username", data?.username);
-    formData.append("password", data?.password);
-    formData.append("confirmpassword", data?.confirmpassword);
-    formData.append("gender", gender);
-    formData.append("state", data?.State.label);
-    formData.append("district", data?.District.label);
-    formData.append("city", data?.City.label);
-    formData.append("Hobbies", selectedHobbies);
-
-    // Check if profile file exists and append
-    if (data.profile && data.profile.length > 0) {
-      formData.append("profile", data.profile[0].name);
-    }
-
-    // Check if document file exists and append
-    if (data.document && data.document.length > 0) {
-      formData.append("document", data.document[0].name);
-    }
-
-    // Status might be an object with a boolean value, ensure to pass the correct format
-    formData.append("status", String(data.status.value));
-
-    // Log formData for debugging (this will not show file content directly)
-    for (let key of formData.keys()) {
-      // console.log(`${key}:`, formData.getAll(key));
-      console.log(`${key}:`, formData.get(key));
-    }
-    // Call the API and handle the response with promises
-    createUserAPI(formData)
-      .then((response) => {
-        if (response.status === 200) {
-          console.log("User created successfully:", response.data);
-        } else {
-          console.error("Failed to create user:", response);
-        }
-      })
-      .catch((error) => {
-        console.error("Error in onFormSubmit:", error);
-      });
   };
 
   const onError = (errors) => {
     console.log("Errors:", errors);
   };
 
-  
   return (
     <>
-    {!stateData &&
-    <div>
       <Head title={"Register"} />
       <Navbar />
       <div className="container" style={container}>
@@ -412,7 +346,7 @@ const Register = () => {
               }}
             >
               {" "}
-              User Registration Form
+              User Updation Form
             </h2>
             <span style={{ paddingBottom: "20px" }}></span>
             <Row className={`gy-4 mb-1`}>
@@ -446,6 +380,7 @@ const Register = () => {
                           })}
                           value={watch(`name`)}
                           onChange={handleInputChange}
+                          placeholder={user.name}
                         />
                         {errors.name?.type === "required" && (
                           <span style={style}>Name field is required</span>
@@ -481,6 +416,7 @@ const Register = () => {
                           })}
                           value={watch(`middle_name`)}
                           onChange={handleMiddleName}
+                          placeholder={user.middlename}
                         />
 
                         {errors.middle_name?.type === "pattern" && (
@@ -520,6 +456,7 @@ const Register = () => {
                           })}
                           value={watch(`last_name`)}
                           onChange={handleLastName}
+                          placeholder={user.last_name}
                         />
                         {errors.last_name?.type === "required" && (
                           <span style={style}>last name field is required</span>
@@ -556,8 +493,9 @@ const Register = () => {
                           onChange={handleDateChange}
                           maxDate={new Date()}
                           showYearDropdown
+                          placeholderText={user.dob}
                           dropdownMode="select"
-                          dateFormat="yyyy-MM-dd"
+                          dateFormat="dd-MM-yyyy"
                         />
                         {error && <div style={style}>{error}</div>}
                         <div className="form-note">
@@ -585,6 +523,7 @@ const Register = () => {
                             className="form-control"
                             value={watch(`mobile`)}
                             onChange={handlemobileChange}
+                            placeholder={user.mobile}
                           />
                           {errors.mobile &&
                             errors.mobile.type === "required" && (
@@ -633,6 +572,7 @@ const Register = () => {
                             className="form-control"
                             value={watch(`email`)}
                             onChange={handleEmailChange}
+                            placeholder={user.email}
                           />
                           {errors.email && errors.email.type === "required" && (
                             <span className="invalid" style={style}>
@@ -668,6 +608,7 @@ const Register = () => {
                             className="form-control"
                             value={watch`username`}
                             onChange={handleUsername}
+                            placeholder={user.username}
                           />
                           {errors.username &&
                             errors.username.type === "required" && (
@@ -708,6 +649,7 @@ const Register = () => {
                             className="form-control"
                             value={watch("password")}
                             onChange={handlePassChange}
+                            placeholder={user.password}
                           />
                           <span
                             className={iconClass}
@@ -821,7 +763,7 @@ const Register = () => {
                             Singing
                           </Label>
                         </FormGroup>
-                        <br/>
+                        <br />
                         <FormGroup check>
                           <Input
                             type="checkbox"
@@ -834,7 +776,7 @@ const Register = () => {
                             Dancing
                           </Label>
                         </FormGroup>
-                        <br/>
+                        <br />
                         <FormGroup check>
                           <Input
                             type="checkbox"
@@ -847,7 +789,7 @@ const Register = () => {
                             Reading
                           </Label>
                         </FormGroup>
-                        <br/>
+                        <br />
                         <FormGroup check>
                           <Input
                             type="checkbox"
@@ -889,6 +831,7 @@ const Register = () => {
                               (option) => option.value === selectedState
                             )}
                             onChange={handleStateChange}
+                            placeholder={user.state}
                           />
                           {errors.State && (
                             <span style={style}>State field is required</span>
@@ -913,6 +856,7 @@ const Register = () => {
                               (option) => option.value === selectedDistrict
                             )}
                             onChange={handleDistrictChange}
+                            placeholder={user.district}
                           />
                           {errors.District && (
                             <span style={style}>
@@ -937,6 +881,7 @@ const Register = () => {
                             {...register("City", { required: true })}
                             value={watch(`City`)}
                             onChange={handleCityChange}
+                            placeholder={user.city}
                           />
                           {errors.City && (
                             <span style={style}>City field is required</span>
@@ -959,6 +904,7 @@ const Register = () => {
                             {...register("profile", { required: true })}
                             onChange={handleImageChange}
                             accept=".jpg, .png, .jpeg"
+                            // placeholder={data.pic}
                           />
                           {imageUrl && (
                             <div>
@@ -982,6 +928,21 @@ const Register = () => {
                         <Label htmlFor="default-1" className="form-label">
                           <h5> Document:</h5>
                         </Label>
+                        {user.document && (
+                          <p>
+                            Current File:{" "}
+                            <a
+                              href={
+                                user.documentUrl ||
+                                `path/to/files/${user.document}`
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {user.document}
+                            </a>
+                          </p>
+                        )}
                       </div>
                       <div className="form-control-wrap">
                         <input
@@ -990,6 +951,7 @@ const Register = () => {
                           {...register("document", { required: true })}
                           onChange={handleDocumentChange}
                           accept=".pdf,.doc,.docx,.txt" // Specify accepted file formats if needed
+                          // placeholder={user.document}
                         />
                         {/* {errors.document && <p style={style}>Document is required.</p>} */}
                       </div>
@@ -1004,12 +966,13 @@ const Register = () => {
                         <CreatableSelect
                           id="status"
                           options={[
-                            { label: "Active", value: "Active" },
-                            { label: "Inactive", value: "Inactive" },
+                            { label: "Active", value: true },
+                            { label: "Inactive", value: false },
                           ]}
                           {...register("status", { required: true })}
-                          value={watch(`status`)}
+                          value={selectedStatus}
                           onChange={handleStatus}
+                          placeholder={selectedStatus.label}
                         />
                         {errors.status && (
                           <p style={style}>Status is required.</p>
@@ -1026,7 +989,7 @@ const Register = () => {
                         style={{ verticalAlign: "bottom" }}
                       >
                         <Button color="primary" size="md">
-                          Register
+                          Update
                         </Button>
                       </div>
                     </Col>
@@ -1036,7 +999,7 @@ const Register = () => {
                         style={{ verticalAlign: "bottom" }}
                       >
                         <Button color="primary" size="md" onClick={handleLogin}>
-                          Login
+                          Cancel
                         </Button>
                       </div>
                     </Col>
@@ -1045,16 +1008,10 @@ const Register = () => {
               </Col>
             </Row>
           </Container>
-          {/* <SignUp/> */}
         </div>
       </div>
-    </div>
-      }
-      {location && location.state &&
-      <UpdateUser data={location.state} />
-      }
     </>
   );
 };
 
-export default Register;
+export default UpdateUser;

@@ -227,6 +227,13 @@ const SignUp = () => {
       setPasswordError("");
     }
   };
+  // useEffect(()=>{
+  //   if (password !== confirmPassword) {
+  //     setPasswordError("Passwords do not match");
+  //   } else {
+  //     setPasswordError("");
+  //   }
+  // }, [])
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -1048,7 +1055,7 @@ const SignUp = () => {
                         style={{ verticalAlign: "bottom" }}
                       >
                         <Button color="primary" size="md">
-                          Register
+                          Update
                         </Button>
                       </div>
                     </Col>

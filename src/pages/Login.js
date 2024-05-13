@@ -1,14 +1,24 @@
-import React from 'react';
-import { Button, Input, Label } from 'reactstrap';
-import { useNavigate } from 'react-router-dom';
-import imgLogin from '../images/login.jpg';
-import { useForm } from 'react-hook-form';
-import '../Login.css';
+import React,{useState} from "react";
+import { Button, Input, Label } from "reactstrap";
+import { useNavigate } from "react-router-dom";
+import imgLogin from "../images/login.jpg";
+import { useForm } from "react-hook-form";
+import "../Login.css";
 
-const style = { color: '#e85347', fontSize: '15px', fontStyle: 'italic' };
+const style = { color: "#e85347", fontSize: "15px", fontStyle: "italic" };
 
 const Login = () => {
   const navigate = useNavigate();
+  const [passwordShown, setPasswordShown] = useState(false);
+
+const togglePasswordVisibility = () => {
+  setPasswordShown(!passwordShown);
+};
+
+// Update the type of input field dynamically based on `passwordShown` state
+const inputType = passwordShown ? 'text' : 'password';
+const iconClass = passwordShown ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+
   const {
     register,
     handleSubmit,
@@ -19,26 +29,26 @@ const Login = () => {
   } = useForm();
 
   const handleEmailChange = (e) => {
-    setValue('email', e.target.value);
-    trigger('email');
+    setValue("email", e.target.value);
+    trigger("email");
   };
 
   const handlePassChange = (e) => {
-    setValue('password', e.target.value);
-    trigger('password');
+    setValue("password", e.target.value);
+    trigger("password");
   };
 
   const onSubmit = (data) => {
-    if (data.email === 'admin@gmail.com' && data.password === '@6Abcd') {
+    if (data.email === "admin@gmail.com" && data.password === "@6Abcd") {
       console.log(data);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } else {
-      alert('Email = admin@gmail.com , Password=@6Abcd');
+      alert("Email = admin@gmail.com , Password=@6Abcd");
     }
   };
 
   const open = () => {
-    navigate('/register');
+    navigate("/register");
   };
 
   return (
@@ -67,20 +77,21 @@ const Login = () => {
                         <input
                           type="text"
                           id="email"
-                          {...register('email', {
+                          {...register("email", {
                             required: true,
-                            pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                            pattern:
+                              /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
                           })}
                           className="form-input"
-                          value={watch('email')}
+                          value={watch("email")}
                           onChange={handleEmailChange}
                         />
-                        {errors.email && errors.email.type === 'required' && (
+                        {errors.email && errors.email.type === "required" && (
                           <span style={style} className="error-message">
                             Email field is required
                           </span>
                         )}
-                        {errors.email && errors.email.type === 'pattern' && (
+                        {errors.email && errors.email.type === "pattern" && (
                           <span className="error-message" style={style}>
                             Invalid input. Format: (xyz@gmail.com)
                           </span>
@@ -103,39 +114,50 @@ const Login = () => {
                     </div>
                     <div className="position-relative">
                       <input
-                        type="password"
+                        type={inputType}
                         id="password"
-                        {...register('password', {
+                        {...register("password", {
                           required: true,
-                          pattern: /^(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?/~\-]).*(?=.*[A-Z]).*(?=.*[a-z]).*(?=.*\d).{6}$/,
+                          pattern:
+                            /^(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?/~\-]).*(?=.*[A-Z]).*(?=.*[a-z]).*(?=.*\d).{6}$/,
                           minLength: 6,
                           maxLength: 8,
                         })}
                         className="form-input"
-                        value={watch('password')}
+                        value={watch("password")}
                         onChange={handlePassChange}
                       />
-                      <span className="fa-solid fa-eye-slash" id="toggle-password"></span>
-                      {errors.password && errors.password.type === 'minLength' && (
-                        <span className="error-message" style={style}>
-                          Invalid input. Min-6 digits are allowed
-                        </span>
-                      )}
-                      {errors.password && errors.password.type === 'maxLength' && (
-                        <span className="error-message" style={style}>
-                          Invalid input. Max-8 digits are allowed
-                        </span>
-                      )}
-                      {errors.password && errors.password.type === 'required' && (
-                        <span className="error-message" style={style}>
-                          Password field is required.
-                        </span>
-                      )}
-                      {errors.password && errors.password.type === 'pattern' && (
-                        <span className="error-message" style={style}>
-                          Include digits, lowercase, uppercase, and special character
-                        </span>
-                      )}
+                      <span
+                        className={iconClass}
+                        id="toggle-password"
+                        onClick={togglePasswordVisibility}
+                      ></span>
+
+                      {errors.password &&
+                        errors.password.type === "minLength" && (
+                          <span className="error-message" style={style}>
+                            Invalid input. Min-6 digits are allowed
+                          </span>
+                        )}
+                      {errors.password &&
+                        errors.password.type === "maxLength" && (
+                          <span className="error-message" style={style}>
+                            Invalid input. Max-8 digits are allowed
+                          </span>
+                        )}
+                      {errors.password &&
+                        errors.password.type === "required" && (
+                          <span className="error-message" style={style}>
+                            Password field is required.
+                          </span>
+                        )}
+                      {errors.password &&
+                        errors.password.type === "pattern" && (
+                          <span className="error-message" style={style}>
+                            Include digits, lowercase, uppercase, and special
+                            character
+                          </span>
+                        )}
                     </div>
                   </div>
 
@@ -146,7 +168,7 @@ const Login = () => {
                   </div>
                   <div className="login-footer">
                     <p>
-                      Don't have an account yet?{' '}
+                      Don't have an account yet?{" "}
                       <Button onClick={open}>Register</Button>
                     </p>
                   </div>
